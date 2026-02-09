@@ -42,7 +42,7 @@ const Quiz = ({ data }: { data: Character[] }) => {
     }
 
     const handleNext = (itemDetails: Character) => {
-        const isCorrect = itemDetails.sound.includes(answerValue);
+        const isCorrect = itemDetails.sound.includes(answerValue.toLowerCase());
 
         setResultItems([...resultItems, {
             question: itemDetails.character,
@@ -78,7 +78,7 @@ const Quiz = ({ data }: { data: Character[] }) => {
     return (
         <div>
             <div className='md:w-2/5 bg-red-200 mx-auto min-h-screen p-2'>
-                <div className='grid grid-cols-4 gap-2'>
+                <div className='grid grid-cols-2 gap-2'>
                     <Link to='/' className='bg-green-600 text-center text-white px-3 py-1 rounded'>List</Link>
                     <button className='bg-blue-600 text-white rounded px-3 py-1' onClick={() => setShowMenu(true)}>Take a quiz</button>
                 </div>
