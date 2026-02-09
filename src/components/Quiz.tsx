@@ -11,14 +11,8 @@ const Quiz = ({ data }: { data: Character[] }) => {
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [quizItems, setQuizItems] = useState<Character[]>([]);
     const [resultItems, setResultItems] = useState<QuizItems[]>([]);
-
-    const inputRef = useRef(null);
-
-    const handleChange = (e) => {
-        e.preventDefault();
-        const { name, value } = e.target;
-        setFilters((prev) => ({...prev, [name]: value }))
-    }
+    const [answerValue, setAnswerValue] = useState<string>('')
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const generateQuizItems = () => {
         setQuizItems([]); setCurrentIndex(0); setResultItems([]);
@@ -27,10 +21,12 @@ const Quiz = ({ data }: { data: Character[] }) => {
             : characters.filter(item => item.group == filters.type);
         const indices: number[] = [];
 
-        while (indices.length < filters.count) {
-            const randomNumber: number = randomizeNumber(filteredItems.length - 1);
-            if (!indices.includes(randomNumber)) {
-                indices.push(randomNumber);
+        if (filters.count !== undefined) {
+            while (indices.length < filters.count) {
+                const randomNumber: number = randomizeNumber(filteredItems.length - 1);
+                if (!indices.includes(randomNumber)) {
+                    indices.push(randomNumber);
+                }
             }
         }
         
@@ -45,25 +41,24 @@ const Quiz = ({ data }: { data: Character[] }) => {
     }
 
     const handleNext = (itemDetails: Character) => {
-        const isCorrect = itemDetails.sound.includes(inputRef.current?.value);
-
-        console.log('currentIndex', currentIndex)
-        console.log('filter', filters.count)
+        const isCorrect = itemDetails.sound.includes(answerValue);
 
         setResultItems([...resultItems, {
             question: itemDetails.character,
-            answer: inputRef.current?.value,
+            answer: answerValue,
             correctAnswer: itemDetails.sound,
             isCorrect: isCorrect
         }]);
 
-        inputRef.current.value = ''
-        inputRef.current.focus()
+        setAnswerValue('')
+        inputRef.current?.focus()
 
-        if (currentIndex >= filters.count) {
-            console.log(resultItems)
-        } else {
-            setCurrentIndex(currentIndex + 1);
+        if (filters.count !== undefined) {
+            if (currentIndex >= filters.count) {
+                console.log(resultItems)
+            } else {
+                setCurrentIndex(currentIndex + 1);
+            }
         }
     }
         
@@ -86,13 +81,18 @@ const Quiz = ({ data }: { data: Character[] }) => {
 
                 <div className='text-center mt-5'>
                     <h1 className='text-8xl'>
-                        { quizItems.length > 0 && currentIndex < filters.count && quizItems[currentIndex].character }
+                        { quizItems.length > 0 
+                        && filters.count !== undefined 
+                        && quizItems[currentIndex] !== undefined 
+                        && currentIndex < filters.count 
+                        && quizItems[currentIndex].character }
                     </h1>
 
                     {
                         quizItems.length > 0 && currentIndex != filters.count &&
                         <div>
-                            <input type="text" className='text-center p-2 m-3' ref={inputRef} />
+                            <input type="text" className='text-center p-2 m-3' ref={inputRef} 
+                                value={answerValue} onChange={(e) => setAnswerValue(e.target.value)} />
                             <br />
                             <button onClick={() => handleNext(quizItems[currentIndex]) }>Next</button>
                         </div>
@@ -130,13 +130,13 @@ const Quiz = ({ data }: { data: Character[] }) => {
             <div className={`fixed top-0 left-0 w-full h-screen bg-black bg-opacity-60 flex justify-center p-2 items-center ${showMenu ? 'visible pointer-events-auto' : 'hidden pointer-events-none'}`}>
                 <div className='w-96 bg-white p-4 rounded grid grid-cols-1 gap-2'>
                     <h1 className='text-center text-xl'>Take a quiz</h1>
-                    <select name='count' value={filters.count} onChange={handleChange}
+                    <select name='count' value={filters.count} onChange={ (e) => setFilters((prev) => ({...prev, count: parseInt(e.target.value)}))}
                         className='bg-white p-2 border border-2 border-black rounded'>
                         <option value={5}>5</option>
                         <option value={10}>10</option>
                         <option value={15}>15</option>
                     </select>
-                    <select name='type' value={filters.type} onChange={handleChange}
+                    <select name='type' value={filters.type} onChange={ (e) => setFilters((prev) => ({...prev, type: parseInt(e.target.value)}))}
                         className='bg-white p-2 border border-2 border-black rounded'>
                         <option value={0}>All</option>
                         <option value={1}>Consonants</option>

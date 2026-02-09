@@ -5,8 +5,8 @@ export interface Character {
 }
 
 export interface QuizFilter {
-    count: number,
-    type: number
+    count: number|undefined,
+    type: number|undefined
 }
 
 export interface QuizItems {
